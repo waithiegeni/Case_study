@@ -7,6 +7,8 @@ Created on Wed Apr 24 14:23:46 2019
 
 import pandas as pd
 
+import numpy as np
+
 all_tb = pd.read_csv('https://raw.githubusercontent.com/waithiegeni/python_analysis/master/TB_burden_countries_2019-01-11.csv', encoding = 'utf-8')
 
 gdp = pd.read_csv('~/Downloads/Income group to TB..csv', encoding = 'utf-8')
@@ -55,6 +57,12 @@ import matplotlib.pyplot as plt
 
 tb.corr()
 
+tb2 = tb.groupby('country').tb.mean()
+
+sns.regplot(x="population", y="tb", data=tb)
+plt.ylim(0,)
+
+
 from scipy import stats
 
 
@@ -67,11 +75,13 @@ print("The Pearson Correlation Coefficient is", pearson_coef, " with a P-value o
 pearson_coef, p_value = stats.pearsonr(tb['region'], tb['tb'])
 print("The Pearson Correlation Coefficient is", pearson_coef, " with a P-value of P =", p_value)
 
+
 from sklearn.linear_model import LinearRegression
 
 lm = LinearRegression()
 
-X = tb[['population']]
+X = tb[['population']]/10000
+
 Y = tb['tb']
 
 lm.fit(X,Y)
@@ -109,3 +119,18 @@ plt.xlabel('Price (in dollars)')
 plt.ylabel('Proportion of Cars')
 
 plt.show()
+
+
+reg_grouped = tb.groupby('region').tb.mean().reset_index()
+
+inc_grouped = tb.groupby('IncomeGroup').tb.mean()
+
+tb['region'].unique()
+
+from scipy import stats
+
+reg_grouped.get_group('AFR')['tb']
+
+# ANOVA
+f_val, p_val = stats.f_oneway(reg_grouped.get_group('EMR')['tb'], reg_grouped.get_group('EUR')['tb'], reg_grouped.get_group('AFR')['tb'], reg_grouped.get_group('WPR')['tb'], reg_grouped.get_group('AMR')['tb'], reg_grouped.get_group('SEA')['tb'])
+f_val, p_val
